@@ -1,5 +1,6 @@
 [
-  { "file": "1-checklist.jpg", "path": "/", "viewport": { "width": 1280, "height": 800 } },
-  { "file": "2-silver.jpg", "path": "/", "grade": "silver", "viewport": { "width": 1280, "height": 800 } },
-  { "file": "3-bronze.jpg", "path": "/", "grade": "bronze", "scroll": 1400, "viewport": { "width": 1280, "height": 800 } }
+  { "file": "1-cover.jpg", "path": "/", "view": "checklist with progress, filters and one guide open", "viewport": { "width": 1280, "height": 800 } },
+  { "file": "2-guide.jpg", "path": "/", "view": "Positive Mental Attitude guide open with MISSABLE flag and sources", "viewport": { "width": 1280, "height": 800 } },
+  { "file": "3-roadmap.jpg", "path": "/", "view": "roadmap to the platinum", "viewport": { "width": 1280, "height": 800 } },
+  { "file": "4-spoiler.jpg", "path": "/", "view": "spoiler mode on, story trophies masked, missable filter active", "viewport": { "width": 1280, "height": 800 } }
 ]
