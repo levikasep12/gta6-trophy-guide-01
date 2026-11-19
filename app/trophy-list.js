@@ -110,6 +110,7 @@ function buildCard(trophy, rerender) {
   side.append(grade);
 
   const isOpen = openGuides.has(trophy.id) && !masked;
+  if (isOpen) card.classList.add('is-open');
   const toggle = document.createElement('button');
   toggle.type = 'button';
   toggle.className = 'disclose';

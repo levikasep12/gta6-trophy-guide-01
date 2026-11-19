@@ -3,8 +3,12 @@ import { initTracker, isEarned, exportProgress, importProgress } from './tracker
 import {
   kindFilters,
   countForKind,
+  activeKinds,
+  toggleKind,
+  setSingleKind,
+  clearFilters,
+  hasActiveFilters,
   getFilterState,
-  setKind,
   setGrade,
   setSearch,
   setShowEarned,
@@ -36,6 +40,7 @@ const els = {
   platinumTips: document.getElementById('platinum-tips'),
   exportButton: document.getElementById('export-button'),
   importInput: document.getElementById('import-input'),
+  resetFilters: document.getElementById('reset-filters'),
   checklistView: document.getElementById('checklist-view'),
   roadmapView: document.getElementById('roadmap-view'),
 };
@@ -72,20 +77,20 @@ function isTicked(trophy) {
 }
 
 function renderKindChips() {
-  const current = getFilterState().kind;
+  const selected = activeKinds();
   els.kindFilters.replaceChildren(
     ...kindFilters().map((filter) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'chip';
-      button.setAttribute('aria-pressed', String(filter.id === current));
+      button.setAttribute('aria-pressed', String(selected.has(filter.id)));
       button.append(document.createTextNode(filter.label));
       const count = document.createElement('span');
       count.className = 'chip-count';
       count.textContent = String(countForKind(filter.id, data.trophies));
       button.append(count);
       button.addEventListener('click', () => {
-        setKind(filter.id);
+        toggleKind(filter.id);
         render();
       });
       return button;
@@ -101,6 +106,7 @@ function render() {
   renderTrophyList(visible, els.list, render);
   els.resultCount.textContent = `${visible.length} of ${data.trophies.length} trophies`;
   els.filterNote.textContent = activeFilterNote();
+  els.resetFilters.hidden = !hasActiveFilters();
   els.empty.hidden = visible.length > 0;
 
   renderRoadmap({
@@ -112,7 +118,7 @@ function render() {
     onPickTrophy: (trophy) => {
       showView('checklist');
       openGuide(trophy.id);
-      setKind('all');
+      setSingleKind('all');
       setSearch('');
       els.search.value = '';
       render();
@@ -162,6 +168,15 @@ function wireControls() {
   });
   els.spoiler.addEventListener('change', () => {
     setSpoilerMode(els.spoiler.checked);
+    render();
+  });
+
+  els.resetFilters.addEventListener('click', () => {
+    clearFilters();
+    els.gradeFilter.value = 'all';
+    els.search.value = '';
+    els.showEarned.checked = true;
+    els.showMissing.checked = true;
     render();
   });
 

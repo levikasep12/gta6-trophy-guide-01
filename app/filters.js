@@ -11,7 +11,7 @@ const KIND_FILTERS = [
 ];
 
 let state = {
-  kind: 'all',
+  kinds: new Set(['all']),
   grade: 'all',
   search: '',
   showEarned: true,
@@ -27,8 +27,39 @@ export function kindFilters() {
   return KIND_FILTERS;
 }
 
-export function setKind(kind) {
-  state = { ...state, kind };
+export function activeKinds() {
+  return state.kinds;
+}
+
+// Kind chips compose: picking Story then Missable shows both groups, and All clears the rest.
+export function toggleKind(kind) {
+  const next = new Set(state.kinds);
+  if (kind === 'all') {
+    state = { ...state, kinds: new Set(['all']) };
+    return;
+  }
+  next.delete('all');
+  if (next.has(kind)) next.delete(kind);
+  else next.add(kind);
+  state = { ...state, kinds: next.size ? next : new Set(['all']) };
+}
+
+export function setSingleKind(kind) {
+  state = { ...state, kinds: kind === 'all' ? new Set(['all']) : new Set([kind]) };
+}
+
+export function clearFilters() {
+  state = { ...state, kinds: new Set(['all']), grade: 'all', search: '', showEarned: true, showMissing: true };
+}
+
+export function hasActiveFilters() {
+  return (
+    !state.kinds.has('all') ||
+    state.grade !== 'all' ||
+    Boolean(state.search) ||
+    !state.showEarned ||
+    !state.showMissing
+  );
 }
 
 export function setGrade(grade) {
@@ -57,10 +88,13 @@ export function countForKind(kind, trophies) {
   return trophies.filter((t) => t.kind === kind).length;
 }
 
-function matchesKind(trophy, kind) {
-  if (kind === 'all') return true;
-  if (kind === 'missable') return trophy.missable === true;
-  return trophy.kind === kind;
+function matchesKind(trophy, kinds) {
+  if (kinds.has('all')) return true;
+  for (const kind of kinds) {
+    if (kind === 'missable' && trophy.missable === true) return true;
+    if (kind === trophy.kind) return true;
+  }
+  return false;
 }
 
 function matchesGrade(trophy, grade) {
@@ -85,7 +119,7 @@ function matchesEarnedToggle(trophy) {
 export function visibleTrophies(trophies) {
   return trophies.filter(
     (trophy) =>
-      matchesKind(trophy, state.kind) &&
+      matchesKind(trophy, state.kinds) &&
       matchesGrade(trophy, state.grade) &&
       matchesSearch(trophy, state.search) &&
       matchesEarnedToggle(trophy),
@@ -99,7 +133,7 @@ export function isSpoilerMasked(trophy) {
 
 export function activeFilterNote() {
   const notes = [];
-  if (state.kind !== 'all') notes.push(`kind: ${state.kind}`);
+  if (!state.kinds.has('all')) notes.push(`kind: ${[...state.kinds].join(' + ')}`);
   if (state.grade !== 'all') notes.push(`grade: ${state.grade}`);
   if (state.search) notes.push(`search: “${state.search}”`);
   if (!state.showEarned) notes.push('earned hidden');
